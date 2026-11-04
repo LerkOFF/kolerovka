@@ -1,0 +1,226 @@
+[
+  {
+    "slug": "tikkurila-euro-power-7",
+    "name": "Euro Power 7",
+    "brand": "Tikkurila",
+    "type": "interior",
+    "tint": true,
+    "color": "stone",
+    "finish": "Глубокоматовая",
+    "base": "Водно-дисперсионная",
+    "use": "Стены и потолки в жилых помещениях",
+    "line": "Euro Power",
+    "description": "Матовая краска для стен и потолков. Демо-позиция: описание и характеристики будут взяты с официального сайта бренда.",
+    "featured": 1,
+    "visible": 1,
+    "in_stock": 1,
+    "variants": [
+      {
+        "label": "0,9 л",
+        "price": 1490
+      },
+      {
+        "label": "2,7 л",
+        "price": 3790
+      },
+      {
+        "label": "9 л",
+        "price": 11900
+      }
+    ]
+  },
+  {
+    "slug": "caparol-samtex-7",
+    "name": "Samtex 7",
+    "brand": "Caparol",
+    "type": "interior",
+    "tint": true,
+    "color": "grey",
+    "finish": "Матовая",
+    "base": "Водно-дисперсионная",
+    "use": "Стены и потолки",
+    "line": "Samtex",
+    "description": "Моющаяся интерьерная краска. Демо-позиция: данные уточняются у заказчика.",
+    "featured": 1,
+    "visible": 1,
+    "in_stock": 1,
+    "variants": [
+      {
+        "label": "0,9 л",
+        "price": 1490
+      },
+      {
+        "label": "2,7 л",
+        "price": 3790
+      },
+      {
+        "label": "9 л",
+        "price": 11900
+      }
+    ]
+  },
+  {
+    "slug": "caparol-amphisilan",
+    "name": "AmphiSilan",
+    "brand": "Caparol",
+    "type": "facade",
+    "tint": true,
+    "color": "taupe",
+    "finish": "Матовая",
+    "base": "Силиконовая",
+    "use": "Фасады и наружные стены",
+    "line": "AmphiSilan",
+    "description": "Фасадная краска для минеральных оснований. Демо-позиция: описание будет с сайта производителя.",
+    "featured": 1,
+    "visible": 1,
+    "in_stock": 1,
+    "variants": [
+      {
+        "label": "2,7 л",
+        "price": 3990
+      },
+      {
+        "label": "9 л",
+        "price": 12900
+      }
+    ]
+  },
+  {
+    "slug": "tikkurila-facade-siloxan",
+    "name": "Facade Siloxan",
+    "brand": "Tikkurila",
+    "type": "facade",
+    "tint": true,
+    "color": "slate",
+    "finish": "Матовая",
+    "base": "Силоксановая",
+    "use": "Фасады",
+    "line": "Facade",
+    "description": "Фасадная краска для окрашивания минеральных поверхностей. Демо-позиция.",
+    "featured": 1,
+    "visible": 1,
+    "in_stock": 1,
+    "variants": [
+      {
+        "label": "2,7 л",
+        "price": 3990
+      },
+      {
+        "label": "9 л",
+        "price": 12900
+      }
+    ]
+  },
+  {
+    "slug": "sikkens-cetol-bl-xl",
+    "name": "Cetol BL XL",
+    "brand": "Sikkens",
+    "type": "universal",
+    "tint": true,
+    "color": "wood",
+    "finish": "Полуматовая",
+    "base": "Водная",
+    "use": "Дерево снаружи и внутри",
+    "line": "Cetol",
+    "description": "Лазурное покрытие для дерева. Демо-позиция: уточняется, входит ли линейка в список колеруемых.",
+    "featured": 1,
+    "visible": 1,
+    "in_stock": 2,
+    "variants": [
+      {
+        "label": "0,75 л",
+        "price": 2190
+      },
+      {
+        "label": "2,5 л",
+        "price": 5890
+      }
+    ]
+  },
+  {
+    "slug": "little-greene-intelligent-matt",
+    "name": "Intelligent Matt Emulsion",
+    "brand": "Little Greene",
+    "type": "interior",
+    "tint": true,
+    "color": "olive",
+    "finish": "Матовая",
+    "base": "Водно-дисперсионная",
+    "use": "Стены и потолки",
+    "line": "Intelligent",
+    "description": "Интерьерная краска из британской коллекции цветов. Демо-позиция.",
+    "featured": 1,
+    "visible": 1,
+    "in_stock": 1,
+    "variants": [
+      {
+        "label": "0,9 л",
+        "price": 1490
+      },
+      {
+        "label": "2,7 л",
+        "price": 3790
+      },
+      {
+        "label": "9 л",
+        "price": 11900
+      }
+    ]
+  },
+  {
+    "slug": "dufa-premium-vodoemulsia",
+    "name": "Premium Wandfarbe",
+    "brand": "Dufa",
+    "type": "interior",
+    "tint": false,
+    "color": "linen",
+    "finish": "Матовая",
+    "base": "Водно-дисперсионная",
+    "use": "Стены и потолки",
+    "line": "Premium",
+    "description": "Пример позиции из раздела «Прочие краски»: продаётся без колеровки. Демо-позиция.",
+    "featured": 0,
+    "visible": 1,
+    "in_stock": 1,
+    "variants": [
+      {
+        "label": "0,9 л",
+        "price": 1490
+      },
+      {
+        "label": "2,7 л",
+        "price": 3790
+      },
+      {
+        "label": "9 л",
+        "price": 11900
+      }
+    ]
+  },
+  {
+    "slug": "ceresit-ct-54",
+    "name": "Ceresit CT 54",
+    "brand": "Ceresit",
+    "type": "facade",
+    "tint": false,
+    "color": "stone",
+    "finish": "Матовая",
+    "base": "Акриловая",
+    "use": "Фасады и интерьеры",
+    "line": "CT",
+    "description": "Пример позиции из раздела «Прочие краски»: колеровка недоступна. Демо-позиция.",
+    "featured": 0,
+    "visible": 1,
+    "in_stock": 1,
+    "variants": [
+      {
+        "label": "2,7 л",
+        "price": 3990
+      },
+      {
+        "label": "9 л",
+        "price": 12900
+      }
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "header": [
+    {"title": "Каталог", "url": "/katalog"},
+    {"title": "Колеровка", "url": "/kolerovka"},
+    {"title": "О нас", "url": "/o-nas"},
+    {"title": "Контакты", "url": "/kontakty"}
+  ],
+  "footer": []
+}

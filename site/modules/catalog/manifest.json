@@ -1,0 +1,27 @@
+{
+    "name": "catalog",
+    "version": "0.1.0",
+    "title": "Каталог красок: товары, цены, колеровка",
+    "entry": "Module.php",
+    "class": "AgeCMS\\Modules\\catalog\\Module",
+    "routes": [
+        {"path": "/katalog", "methods": ["GET"], "cache": "public", "max_age": 300, "indexable": true},
+        {"path": "/katalog/{slug}", "methods": ["GET"], "cache": "public", "max_age": 300, "indexable": true}
+    ],
+    "admin": [
+        {"path": "/", "title": "Каталог", "permission": "content.write", "methods": ["GET", "POST"], "menu": true},
+        {"path": "/product/{id}", "title": "Товар", "permission": "content.write", "methods": ["GET", "POST"]},
+        {"path": "/product/{id}/image", "title": "Фото товара", "permission": "content.write", "methods": ["POST"],
+         "upload": {"kinds": ["image"], "max_kb": 8192, "max_files": 4}},
+        {"path": "/import", "title": "Импорт и экспорт", "permission": "content.write", "methods": ["GET"], "menu": true},
+        {"path": "/import/upload", "title": "Загрузка прайса", "permission": "content.write", "methods": ["POST"],
+         "upload": {"kinds": ["csv"], "max_kb": 4096, "max_files": 1}},
+        {"path": "/export", "title": "Выгрузка каталога", "permission": "content.write", "methods": ["GET"], "menu": false}
+    ],
+    "settings": [
+        {"key": "show_prices", "label": "Показывать цены на сайте", "type": "bool", "default": false, "help": "Если выключено, в карточках вместо цены: «Цену и наличие уточняйте у менеджера»"},
+        {"key": "show_tint_badge", "label": "Показывать метку «Доступна колеровка»", "type": "bool", "default": true},
+        {"key": "other_paints", "label": "Показывать раздел «Прочие краски» (не колеруются)", "type": "bool", "default": true},
+        {"key": "phone_hint", "label": "Подсказка рядом с кнопкой заказа", "type": "text", "default": "", "length": 160, "help": "Например: «Или позвоните, ответим за пять минут»"}
+    ]
+}

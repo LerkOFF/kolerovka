@@ -1,0 +1,138 @@
+{
+    "name": "kolerovka",
+    "title": "Колеровка: магазин красок",
+    "version": "0.1.0",
+    "cache_pages": [],
+    "settings": {
+        "header": {
+            "hint": "Телефон, почта, адрес, юрлицо и ИНН задаются во вкладке «Главное», шапка и подвал берут их оттуда.",
+            "fields": {
+                "hours": {"type": "text", "max": 300, "label": "График работы: каждая строка «дни: часы»", "hint": "Показывается на странице контактов"}
+            }
+        },
+        "footer": {
+            "fields": {
+                "telegram": {"type": "string", "max": 120, "label": "Telegram: ник или ссылка", "hint": "Например shop_name или https://t.me/shop_name"},
+                "max": {"type": "url", "label": "Max: ссылка"},
+                "map_embed": {"type": "url", "label": "Яндекс.Карта: ссылка виджета для вставки", "hint": "Конструктор карт Яндекса, вставка в виде iframe: нужна только ссылка из src"},
+                "requisites": {"type": "text", "max": 500, "label": "Реквизиты для подвала и контактов", "hint": "Наименование, ИНН, ОГРН, юридический адрес"}
+            }
+        }
+    },
+    "blocks": {
+        "page_head": {
+            "title": "Шапка внутренней страницы",
+            "fields": {
+                "h1": {"type": "string", "max": 200, "required": true},
+                "text": {"type": "text", "max": 500}
+            }
+        },
+        "hero_home": {
+            "title": "Первый экран главной: заголовок, кнопки, образцы RAL",
+            "fields": {
+                "h1": {"type": "string", "max": 120, "required": true},
+                "text": {"type": "text", "max": 220},
+                "cta_text": {"type": "string", "max": 40},
+                "cta_url": {"type": "url"},
+                "cta2_text": {"type": "string", "max": 40},
+                "cta2_url": {"type": "url"}
+            }
+        },
+        "benefits": {
+            "title": "Преимущества: сетка из четырёх ячеек",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "items": {
+                    "type": "list",
+                    "max": 4,
+                    "of": {
+                        "title": {"type": "string", "max": 80, "required": true},
+                        "text": {"type": "text", "max": 260},
+                        "icon": {"type": "enum", "values": ["eyedropper", "seal-check", "palette", "shield-check", "ruler", "timer", "drop", "paint-bucket"]}
+                    }
+                }
+            }
+        },
+        "showcase": {
+            "title": "Витрина: популярные позиции из каталога",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "limit": {"type": "int", "min": 2, "max": 12, "default": 6, "label": "Сколько позиций"}
+            }
+        },
+        "tint_split": {
+            "title": "Блок о колеровке с быстрой заявкой",
+            "fields": {
+                "heading": {"type": "string", "max": 140},
+                "text": {"type": "text", "max": 300},
+                "bullets": {"type": "list", "max": 6, "of": {"text": {"type": "string", "max": 120, "required": true}}},
+                "cta_text": {"type": "string", "max": 40},
+                "cta_url": {"type": "url"},
+                "form_title": {"type": "string", "max": 60}
+            }
+        },
+        "steps": {
+            "title": "Как проходит колеровка: шаги",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "items": {
+                    "type": "list",
+                    "max": 6,
+                    "of": {
+                        "title": {"type": "string", "max": 60, "required": true},
+                        "text": {"type": "text", "max": 220},
+                        "icon": {"type": "enum", "values": ["eyedropper", "palette", "drop", "paint-bucket", "ruler", "timer"]}
+                    }
+                }
+            }
+        },
+        "brands": {
+            "title": "Бренды, которые колеруем (из каталога)",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "text": {"type": "text", "max": 260},
+                "note": {"type": "text", "max": 260}
+            }
+        },
+        "ral_picker": {
+            "title": "Выбор оттенка RAL, подставляется в заявку",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "ways": {
+                    "type": "list",
+                    "max": 3,
+                    "of": {
+                        "title": {"type": "string", "max": 60, "required": true},
+                        "text": {"type": "text", "max": 220},
+                        "show": {"type": "bool", "label": "Показывать (для NCS выключено, пока заказчик не решил)"}
+                    }
+                },
+                "note": {"type": "text", "max": 260}
+            }
+        },
+        "lead_form": {
+            "title": "Форма заявки или обратной связи",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "text": {"type": "text", "max": 300},
+                "mode": {"type": "enum", "values": ["tint", "contact"], "labels": {"tint": "Заявка на колеровку (имя, телефон, комментарий)", "contact": "Обратная связь (имя, телефон, почта, сообщение)"}},
+                "success_text": {"type": "string", "max": 160},
+                "button_text": {"type": "string", "max": 40}
+            }
+        },
+        "contacts": {
+            "title": "Контакты: адрес, телефон, график, карта",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "show_cta": {"type": "bool", "label": "Кнопки «Позвонить» и «Telegram»"}
+            }
+        },
+        "text": {
+            "title": "Текст страницы",
+            "fields": {
+                "heading": {"type": "string", "max": 160},
+                "body": {"type": "richtext", "max": 60000, "required": true}
+            }
+        }
+    }
+}
