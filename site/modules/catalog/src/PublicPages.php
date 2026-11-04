@@ -9,6 +9,9 @@ use AgeCMS\Seo;
 /** Публичные страницы /katalog и /katalog/{slug}. Вёрстка использует классы темы, иконок здесь нет. */
 final class PublicPages
 {
+    /** Картинка превью ссылок, если у товара нет своего фото. */
+    private const DEFAULT_IMAGE = '/themes/kolerovka/assets/og-default.png';
+
     /** @param array<string,mixed> $q query */
     public static function listing(array $q): ModuleResponse
     {
@@ -117,7 +120,8 @@ final class PublicPages
         // Адрес у всех страниц списка один (/katalog), поэтому заголовок и описание второй и следующих страниц отличаются номером.
         $suffix = $page > 1 ? ', страница ' . $page : '';
         return ModuleResponse::html('Каталог красок' . $suffix, $body)
-            ->withDescription('Каталог премиальных красок с колеровкой' . $suffix . ': бренды, типы, наличие. Подберём цвет по образцу или по каталогу RAL.');
+            ->withDescription('Каталог премиальных красок с колеровкой' . $suffix . ': бренды, типы, наличие. Подберём цвет по образцу или по каталогу RAL.')
+            ->withImage(self::DEFAULT_IMAGE);
     }
 
     public static function product(array $p): ModuleResponse
@@ -179,7 +183,10 @@ final class PublicPages
             . '<div class="panel">' . $lead . '</div></div></section>';
 
         $desc = trim($name . '. ' . ($p['tint'] ? 'Доступна колеровка. ' : '') . ($p['description'] !== '' ? mb_substr($p['description'], 0, 160) : ''));
-        return ModuleResponse::html($name, $body)->withDescription($desc);
+        $image = trim((string)($p['images'][0] ?? ''));
+        return ModuleResponse::html($name, $body)->withDescription($desc)
+            ->withImage($image !== '' ? $image : self::DEFAULT_IMAGE)
+            ->withMeta('og:type', 'product');
     }
 
     /**
