@@ -60,12 +60,61 @@ if (!function_exists('kl_asset')) {
         return $kind === 'telegram' ? 'https://t.me/' . ltrim($value, '@') : '';
     }
 
-    /** Цвета RAL для плиток и выбора оттенка. @return list<array{code:string,name:string,hex:string}> */
+    /** Палитра RAL Classic (213 цветов, по возрастанию кода). @return list<array{code:string,name:string,hex:string}> */
     function kl_ral(): array
     {
-        $file = AGECMS_ROOT . '/themes/kolerovka/data/ral.json';
-        $data = is_file($file) ? json_decode((string)file_get_contents($file), true) : [];
-        return is_array($data) ? $data : [];
+        static $cache = null;
+        if ($cache === null) {
+            $file = AGECMS_ROOT . '/themes/kolerovka/data/ral.json';
+            $data = is_file($file) ? json_decode((string)file_get_contents($file), true) : [];
+            $cache = is_array($data) ? array_values($data) : [];
+        }
+        return $cache;
+    }
+
+    /** Цвета RAL по списку кодов, в порядке списка (для витрины на главной). @param list<string> $codes */
+    function kl_ral_pick(array $codes): array
+    {
+        $by = [];
+        foreach (kl_ral() as $c) {
+            $by[$c['code']] = $c;
+        }
+        $out = [];
+        foreach ($codes as $code) {
+            if (isset($by[$code])) {
+                $out[] = $by[$code];
+            }
+        }
+        return $out;
+    }
+
+    /** Семейства RAL Classic по первой цифре кода. @return array<string,string> */
+    function kl_ral_families(): array
+    {
+        return [
+            '1' => 'Жёлтые',
+            '2' => 'Оранжевые',
+            '3' => 'Красные',
+            '4' => 'Фиолетовые',
+            '5' => 'Синие',
+            '6' => 'Зелёные',
+            '7' => 'Серые',
+            '8' => 'Коричневые',
+            '9' => 'Белые и чёрные',
+        ];
+    }
+
+    /** Нужен ли тёмный текст на плитке с таким цветом: берём тот из двух (чёрный или белый), у кого выше контраст по WCAG. */
+    function kl_ral_is_light(string $hex): bool
+    {
+        $rgb = sscanf(ltrim($hex, '#'), '%2x%2x%2x');
+        $lin = static function (int $v): float {
+            $s = $v / 255;
+            return $s <= 0.03928 ? $s / 12.92 : (($s + 0.055) / 1.055) ** 2.4;
+        };
+        $l = 0.2126 * $lin((int)$rgb[0]) + 0.7152 * $lin((int)$rgb[1]) + 0.0722 * $lin((int)$rgb[2]);
+        $dark = 0.0; // относительная яркость чёрного
+        return ($l + 0.05) / ($dark + 0.05) >= 1.05 / ($l + 0.05);
     }
 
     /** Общие данные шапки, подвала и контактов из настроек сайта и темы. @return array<string,string> */

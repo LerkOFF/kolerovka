@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace AgeCMS\Modules\catalog;
 
 use AgeCMS\ModuleResponse;
+use AgeCMS\Seo;
 
 /** Публичные страницы /katalog и /katalog/{slug}. Вёрстка использует классы темы, иконок здесь нет. */
 final class PublicPages
@@ -113,8 +114,10 @@ final class PublicPages
         $body = '<section class="page-head"><div class="wrap"><h1>Каталог красок</h1>'
             . '<p class="lead">Колеруются только премиальные краски. Позиции с меткой можно заколеровать в нужный цвет.</p></div></section>'
             . '<section class="section section-flush"><div class="wrap catalog">' . $form . '<div class="results">' . $results . '</div></div></section>';
-        return ModuleResponse::html('Каталог красок', $body)
-            ->withDescription('Каталог премиальных красок с колеровкой: бренды, типы, наличие. Подберём цвет по образцу или по каталогу RAL.');
+        // Адрес у всех страниц списка один (/katalog), поэтому заголовок и описание второй и следующих страниц отличаются номером.
+        $suffix = $page > 1 ? ', страница ' . $page : '';
+        return ModuleResponse::html('Каталог красок' . $suffix, $body)
+            ->withDescription('Каталог премиальных красок с колеровкой' . $suffix . ': бренды, типы, наличие. Подберём цвет по образцу или по каталогу RAL.');
     }
 
     public static function product(array $p): ModuleResponse
@@ -167,7 +170,8 @@ final class PublicPages
             . ($hint !== '' ? '<p class="fine">' . ag_e($hint) . '</p>' : '') . '<p class="fine">' . ag_e($fine) . '</p></div>';
 
         $lead = self::leadForm($name);
-        $body = '<section class="section section-flush"><div class="wrap">'
+        $body = self::productJsonLd($p, $name, $showPrices)
+            . '<section class="section section-flush"><div class="wrap">'
             . '<nav class="crumbs" aria-label="Путь"><a href="/katalog">Каталог</a><span>' . ag_e($p['brand']) . '</span></nav>'
             . '<div class="product">' . $gallery . $info . '</div></div></section>'
             . '<section class="section section-tint"><div class="wrap split"><div><h2>Уточнить наличие</h2>'
@@ -176,6 +180,61 @@ final class PublicPages
 
         $desc = trim($name . '. ' . ($p['tint'] ? 'Доступна колеровка. ' : '') . ($p['description'] !== '' ? mb_substr($p['description'], 0, 160) : ''));
         return ModuleResponse::html($name, $body)->withDescription($desc);
+    }
+
+    /**
+     * Разметка Product для поисковиков. Модульные страницы ядро выводит без своих строк в head, поэтому блок идёт в начале страницы:
+     * это данные (application/ld+json), не исполняемый код. Предложения (offers) только при включённом показе цен и ценах у вариантов.
+     *
+     * @param array<string,mixed> $p
+     */
+    private static function productJsonLd(array $p, string $name, bool $showPrices): string
+    {
+        $site = Seo::siteUrl();
+        $abs = static fn(string $u): string => str_starts_with($u, '/') ? $site . $u : $u;
+        $url = Seo::url('katalog/' . $p['slug']);
+        $data = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            '@id' => $url . '#product',
+            'name' => $name,
+            'sku' => (string)$p['slug'],
+            'url' => $url,
+        ];
+        if (trim((string)$p['brand']) !== '') {
+            $data['brand'] = ['@type' => 'Brand', 'name' => (string)$p['brand']];
+        }
+        $text = trim((string)$p['description']);
+        $data['description'] = $text !== '' ? $text : $name;
+        $imgs = array_map($abs, array_slice($p['images'], 0, 4));
+        if ($imgs !== []) {
+            $data['image'] = $imgs;
+        }
+        $category = Dict::typeName((string)$p['type']);
+        if ($category !== '') {
+            $data['category'] = $category;
+        }
+        if ($showPrices) {
+            $availability = [0 => 'OutOfStock', 1 => 'InStock', 2 => 'PreOrder'][(int)$p['in_stock']] ?? null;
+            $offers = [];
+            foreach ($p['variants'] as $v) {
+                if ((int)$v['price'] > 0) {
+                    $offer = ['@type' => 'Offer', 'url' => $url, 'priceCurrency' => 'RUB', 'price' => (int)$v['price']];
+                    if (trim((string)$v['label']) !== '') {
+                        $offer['name'] = (string)$v['label'];
+                    }
+                    if ($availability !== null) {
+                        $offer['availability'] = 'https://schema.org/' . $availability;
+                    }
+                    $offers[] = $offer;
+                }
+            }
+            if ($offers !== []) {
+                $data['offers'] = count($offers) === 1 ? $offers[0] : $offers;
+            }
+        }
+        $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_PRETTY_PRINT | JSON_PARTIAL_OUTPUT_ON_ERROR);
+        return '<script type="application/ld+json">' . $json . '</script>';
     }
 
     /** Форма заявки: её отправляет core assets/app.js на /_/lead, токен он берёт из /_/token. */

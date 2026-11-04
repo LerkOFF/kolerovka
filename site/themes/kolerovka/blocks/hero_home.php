@@ -1,5 +1,5 @@
 <?php require_once dirname(__DIR__) . '/lib.php'; ?><?php /** @var array<string,mixed> $data */ /** @var string $id */ /** @var bool $editing */
-$chips = array_slice(kl_ral(), 0, 12);
+$chips = kl_ral_pick(['9010', '9003', '9001', '1015', '7035', '7047', '7040', '7016', '9005', '6021', '6005', '5014']);
 ?>
         <section class="hero" id="<?= ag_e($id) ?>">
             <div class="wrap hero-grid">
@@ -19,7 +19,7 @@ $chips = array_slice(kl_ral(), 0, 12);
                 </div>
                 <div class="swatches" aria-label="Примеры оттенков RAL">
 <?php foreach ($chips as $i => $c): ?>
-                    <figure class="sw sw-<?= $i + 1 ?> ral-<?= ag_e(preg_replace('/\D/', '', $c['code'])) ?>"><figcaption><?= ag_e($c['code']) ?></figcaption></figure>
+                    <figure class="sw sw-<?= $i + 1 ?> ral-<?= ag_e($c['code']) ?>"><figcaption>RAL <?= ag_e($c['code']) ?></figcaption></figure>
 <?php endforeach; ?>
                 </div>
             </div>

@@ -21,5 +21,10 @@
       "url": "/kontakty"
     }
   ],
-  "footer": []
+  "footer": [
+    {
+      "title": "Вопросы и ответы",
+      "url": "/voprosy-i-otvety"
+    }
+  ]
 }

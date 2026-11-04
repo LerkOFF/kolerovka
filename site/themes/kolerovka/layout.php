@@ -30,6 +30,8 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
     <link rel="preload" href="/themes/kolerovka/assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
     <script src="<?= ag_e(kl_asset('theme-init.js')) ?>"></script>
     <link rel="stylesheet" href="<?= ag_e(kl_asset('theme.css')) ?>">
+    <link rel="stylesheet" href="<?= ag_e(kl_asset('ral.css')) ?>">
+    <link rel="stylesheet" href="<?= ag_e(kl_asset('ral-ui.css')) ?>">
 <?php if ($editing): ?>
     <meta name="ag-csrf" content="<?= ag_e($csrf) ?>">
     <script src="<?= ag_e('/assets/editor.js?v=' . (is_file(AGECMS_ROOT . '/assets/editor.js') ? filemtime(AGECMS_ROOT . '/assets/editor.js') : 1)) ?>" defer></script>
@@ -82,7 +84,7 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
             </div>
             <nav class="foot-col" aria-label="Нижнее меню">
                 <h2 class="foot-h">Разделы</h2>
-<?php foreach ($menus['header'] as $item): ?>
+<?php foreach (array_merge($menus['header'], $menus['footer'] ?? []) as $item): ?>
                 <a href="<?= ag_e($item['url']) ?>"><?= ag_e($item['title']) ?></a>
 <?php endforeach; ?>
             </nav>

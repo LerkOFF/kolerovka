@@ -86,6 +86,20 @@
                 }
             }
         },
+        "faq": {
+            "title": "Вопросы и ответы",
+            "fields": {
+                "heading": {"type": "string", "max": 120},
+                "items": {
+                    "type": "list",
+                    "max": 20,
+                    "of": {
+                        "q": {"type": "string", "max": 160, "required": true, "label": "Вопрос"},
+                        "a": {"type": "text", "max": 600, "required": true, "label": "Ответ"}
+                    }
+                }
+            }
+        },
         "brands": {
             "title": "Бренды, которые колеруем (из каталога)",
             "fields": {

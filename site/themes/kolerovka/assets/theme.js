@@ -40,11 +40,14 @@
     var picked = null;
     var comment = document.querySelector('[data-tint-comment]');
     var note = document.querySelector('[data-ral-picked]');
-    document.querySelectorAll('.ral-chip').forEach(function (chip) {
+    var chips = document.querySelectorAll('.ral-chip');
+    var pressed = null;
+    chips.forEach(function (chip) {
         chip.setAttribute('aria-pressed', 'false');
         chip.addEventListener('click', function () {
-            document.querySelectorAll('.ral-chip[aria-pressed="true"]').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
+            if (pressed) { pressed.setAttribute('aria-pressed', 'false'); }
             chip.setAttribute('aria-pressed', 'true');
+            pressed = chip;
             var line = 'Оттенок: ' + chip.dataset.ral;
             if (note) { note.hidden = false; note.textContent = line + '. Он добавлен в заявку.'; }
             if (comment) {
@@ -69,5 +72,53 @@
         };
         [email, text].forEach(function (el) { if (el) { el.addEventListener('input', sync); } });
         form.addEventListener('submit', sync, true);
+    });
+
+    // Каталог RAL: фильтр по семейству и поиск по коду или названию. Без скрипта все плитки видны.
+    document.querySelectorAll('[data-ral-picker]').forEach(function (picker) {
+        var tools = picker.querySelector('[data-ral-tools]');
+        var search = picker.querySelector('[data-ral-search]');
+        var tabs = picker.querySelectorAll('[data-ral-family]');
+        var groups = picker.querySelectorAll('[data-ral-group]');
+        var items = picker.querySelectorAll('[data-ral-item]');
+        var status = picker.querySelector('[data-ral-status]');
+        var empty = picker.querySelector('[data-ral-empty]');
+        if (!tools || !search) { return; }
+        tools.hidden = false;
+        var family = 'all';
+        var norm = function (v) { return v.toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim(); };
+        var apply = function () {
+            var q = norm(search.value);
+            var words = q === '' ? [] : q.split(' ');
+            var shown = 0;
+            groups.forEach(function (g) {
+                var inFamily = family === 'all' || g.getAttribute('data-ral-group') === family;
+                var any = 0;
+                g.querySelectorAll('[data-ral-item]').forEach(function (li) {
+                    var hay = li.getAttribute('data-find') || '';
+                    var ok = inFamily && words.every(function (w) { return hay.indexOf(w) !== -1; });
+                    li.hidden = !ok;
+                    if (ok) { any++; }
+                });
+                g.hidden = any === 0;
+                shown += any;
+            });
+            if (status) {
+                status.textContent = shown === 0 ? 'Ничего не найдено' : 'Показано оттенков: ' + shown + ' из ' + items.length;
+            }
+            if (empty) { empty.hidden = shown !== 0; }
+        };
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                family = tab.getAttribute('data-ral-family');
+                tabs.forEach(function (t) { t.setAttribute('aria-pressed', t === tab ? 'true' : 'false'); });
+                apply();
+            });
+        });
+        search.addEventListener('input', apply);
+        search.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && search.value !== '') { search.value = ''; apply(); }
+        });
+        apply();
     });
 }());
