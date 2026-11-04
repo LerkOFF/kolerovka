@@ -1,0 +1,3 @@
+[submodule "vendor/agecms"]
+	path = vendor/agecms
+	url = git@github.com:likvp/AgeCMS.git

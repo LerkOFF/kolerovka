@@ -1,0 +1,11 @@
+.DS_Store
+build/
+.dev-root/
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env
+.env.*
+admin-login.txt
+config.local.php
