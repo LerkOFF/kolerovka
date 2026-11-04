@@ -118,6 +118,12 @@ h3 { font-size: 1.15rem; letter-spacing: -.01em; }
 .hero { padding: clamp(2rem, 5vw, 4.5rem) 0 clamp(2.5rem, 5vw, 4rem); }
 .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem, 4vw, 4rem); align-items: center; }
 .hero h1 { max-width: 14ch; }
+/* Обложка за первым экраном и шапкой каталога: картинка, поверх вуаль цвета фона, чтобы заголовок читался в обеих темах */
+.hero, .page-head--cover { position: relative; isolation: isolate; background: var(--cover, none) center / cover no-repeat; }
+.hero::before, .page-head--cover::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, color-mix(in srgb, var(--bg) 92%, transparent) 0%, color-mix(in srgb, var(--bg) 78%, transparent) 30%, transparent 62%); }
+.hero { --cover: url("covers/cover-wall.webp"); }
+.page-head--cover { --cover: url("covers/cover-strokes.webp"); padding-bottom: clamp(2rem, 5vw, 3.5rem); margin-bottom: clamp(1rem, 3vw, 2rem); }
+.page-head--cover .lead { max-width: 40ch; }
 .swatches { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 88px; gap: 10px; }
 .sw { margin: 0; position: relative; border-radius: var(--r); background: var(--c); box-shadow: inset 0 0 0 1px var(--sw-line); transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
 .sw:hover { transform: translateY(-4px); }
@@ -257,6 +263,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 
 /* Планшет и телефон */
 @media (max-width: 960px) {
+  .hero::before, .page-head--cover::before { background: color-mix(in srgb, var(--bg) 82%, transparent); }
   .hero-grid, .split, .product, .catalog { grid-template-columns: 1fr; }
   .filters { position: static; }
   .steps { grid-template-columns: repeat(2, 1fr); }

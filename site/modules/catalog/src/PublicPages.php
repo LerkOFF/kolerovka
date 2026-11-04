@@ -114,7 +114,7 @@ final class PublicPages
             }
         }
 
-        $body = '<section class="page-head"><div class="wrap"><h1>Каталог красок</h1>'
+        $body = '<section class="page-head page-head--cover"><div class="wrap"><h1>Каталог красок</h1>'
             . '<p class="lead">Колеруются только премиальные краски. Позиции с меткой можно заколеровать в нужный цвет.</p></div></section>'
             . '<section class="section section-flush"><div class="wrap catalog">' . $form . '<div class="results">' . $results . '</div></div></section>';
         // Адрес у всех страниц списка один (/katalog), поэтому заголовок и описание второй и следующих страниц отличаются номером.
