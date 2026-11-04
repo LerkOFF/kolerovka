@@ -3,11 +3,11 @@
 # сбрасывает кэш. Данные сайта (data/, загрузки, кэш) не трогаются.
 #   scripts/server-update.sh                 обычное обновление
 #   SEED=1 scripts/server-update.sh          ещё раз загрузить страницы и меню из content/ (затрёт правки текстов в админке)
-# Переменные: KOL_WWW (папка сайта, по умолчанию /var/www/tr/www), KOL_URL (адрес сайта для первой установки).
+# Переменные: KOL_WWW (папка сайта, по умолчанию /var/www/kolerovka/www), KOL_URL (адрес сайта для первой установки).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-WWW="${KOL_WWW:-/var/www/tr/www}"
-URL="${KOL_URL:-https://tr.oai.su}"
+WWW="${KOL_WWW:-/var/www/kolerovka/www}"
+URL="${KOL_URL:-https://ch.oai.su}"
 RUN=(runuser -u www-data --)
 
 git pull -q --ff-only
