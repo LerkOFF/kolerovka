@@ -19,6 +19,9 @@ if ($uploads !== false && $uploads !== '' && preg_match('~^/assets/uploads/([a-f
     readfile($uploads . '/' . $m[1]);
     return true;
 }
+if (preg_match('~^/(favicon\.ico|apple-touch-icon\.png|site\.webmanifest)$~', $path) === 1 && is_file($root . $path)) {
+    return false;
+}
 if (preg_match('~^/(assets(?!/cache/)|themes)/[A-Za-z0-9_./-]+$~', $path) === 1 && !str_contains($path, '..') && is_file($root . $path)) {
     return false;
 }

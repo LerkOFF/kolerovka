@@ -26,9 +26,15 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
     <meta name="color-scheme" content="light dark">
     <?= $head ?>
 
+    <link rel="icon" href="<?= ag_e('/favicon.ico?v=' . (is_file(AGECMS_ROOT . '/favicon.ico') ? filemtime(AGECMS_ROOT . '/favicon.ico') : 1)) ?>" sizes="48x48">
+    <link rel="icon" href="<?= ag_e(kl_asset('favicon-16.png')) ?>" type="image/png" sizes="16x16">
     <link rel="icon" href="<?= ag_e(kl_asset('favicon-32.png')) ?>" type="image/png" sizes="32x32">
+    <link rel="icon" href="<?= ag_e(kl_asset('favicon-48.png')) ?>" type="image/png" sizes="48x48">
     <link rel="icon" href="<?= ag_e(kl_asset('favicon-192.png')) ?>" type="image/png" sizes="192x192">
-    <link rel="apple-touch-icon" href="<?= ag_e(kl_asset('apple-touch-icon.png')) ?>">
+    <link rel="apple-touch-icon" href="<?= ag_e(kl_asset('apple-touch-icon.png')) ?>" sizes="180x180">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#101216" media="(prefers-color-scheme: dark)">
     <link rel="preload" href="/themes/kolerovka/assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
     <script src="<?= ag_e(kl_asset('theme-init.js')) ?>"></script>
     <link rel="stylesheet" href="<?= ag_e(kl_asset('theme.css')) ?>">

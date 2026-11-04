@@ -15,6 +15,8 @@ mkdir -p "$DEST/themes" "$DEST/modules"
 rsync -a --delete vendor/agecms/themes/ "$DEST/themes/"
 rsync -a --delete vendor/agecms/modules/ "$DEST/modules/"
 rsync -a site/themes/ "$DEST/themes/"
+# Файлы корня сайта (favicon.ico, манифест, иконка для iOS): их ищут браузеры и поисковики по фиксированным адресам.
+[ -d site/public ] && rsync -a site/public/ "$DEST/"
 for m in ${KOL_MODULES:-catalog}; do
   [ -d "site/modules/$m" ] && rsync -a --delete "site/modules/$m/" "$DEST/modules/$m/"
 done
