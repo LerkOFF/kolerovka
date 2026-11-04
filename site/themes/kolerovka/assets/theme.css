@@ -124,8 +124,6 @@ body:has(.hero)::after, body:has(.page-head--cover)::after { content: ""; positi
 body:has(.hero) { --cover: url("covers/cover-wall.webp"); }
 body:has(.page-head--cover) { --cover: url("covers/cover-strokes.webp"); }
 .page-head--cover .lead { max-width: 40ch; }
-/* Серые полосы секций на страницах с обложкой убраны, чтобы картинка была видна на всю страницу; подвал остаётся сплошным */
-body:has(.hero) .section-tint, body:has(.page-head--cover) .section-tint { background: transparent; }
 .swatches { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 88px; gap: 10px; }
 .sw { margin: 0; position: relative; border-radius: var(--r); background: var(--c); box-shadow: inset 0 0 0 1px var(--sw-line); transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
 .sw:hover { transform: translateY(-4px); }
