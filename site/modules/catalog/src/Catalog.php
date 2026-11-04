@@ -10,8 +10,11 @@ use AgeCMS\ModuleSitemap;
 use PDO;
 use Throwable;
 
+require_once __DIR__ . '/Dict.php';
+
 /**
  * Каталог красок: чтение, запись и публичное API для блоков темы.
+ * Бренды, линейки и типы ведутся в справочниках (класс Dict): названия на сайте и в формах берутся оттуда.
  * Строка товара в API: id, slug, brand, name, line, type, finish, base, use, description, tint, featured, visible, in_stock,
  * color, images (список), specs (словарь), source_url, price_from (int|null), variants (только у item()).
  */
@@ -19,7 +22,6 @@ final class Catalog
 {
     public const PER_PAGE = 24;
     public const ADMIN_PER_PAGE = 50;
-    public const TYPES = ['interior' => 'Интерьерная', 'facade' => 'Фасадная', 'universal' => 'Универсальная'];
     /** Ключи палитры плиток-заглушек: цвета задаёт тема классами tile-<ключ> (inline style запрещён CSP). */
     public const PALETTE = ['stone' => 'Камень', 'linen' => 'Лён', 'grey' => 'Серый', 'slate' => 'Сланец', 'taupe' => 'Тоуп', 'olive' => 'Олива', 'wood' => 'Дерево', 'graphite' => 'Графит', 'blue' => 'Синий', 'green' => 'Зелёный', 'red' => 'Красный', 'yellow' => 'Жёлтый'];
     public const STOCK = [0 => 'Нет в наличии', 1 => 'В наличии', 2 => 'Под заказ'];
@@ -50,7 +52,7 @@ final class Catalog
     }
 
     /**
-     * Список с фильтрами. Ключи $f: q, brand, type, tint ('1'|'0'), visible ('1'|'0'), noprice ('1').
+     * Список с фильтрами. Ключи $f: q, brand, line, type, tint ('1'|'0'), visible ('1'|'0'), noprice ('1').
      * Порядок: сначала колеруемые, потом прочие, внутри по sort и номеру.
      *
      * @param array<string,mixed> $f
@@ -69,7 +71,11 @@ final class Catalog
             $where[] = 'p.brand = ?';
             $params[] = (string)$f['brand'];
         }
-        if (isset(self::TYPES[(string)($f['type'] ?? '')])) {
+        if (($f['line'] ?? '') !== '') {
+            $where[] = 'p.line = ?';
+            $params[] = (string)$f['line'];
+        }
+        if (isset(Dict::typeNames()[(string)($f['type'] ?? '')])) {
             $where[] = 'p.type = ?';
             $params[] = (string)$f['type'];
         }
@@ -117,17 +123,22 @@ final class Catalog
         return array_map([self::class, 'row'], $rows);
     }
 
-    /** @return list<string> бренды с видимыми колеруемыми товарами */
+    /** @return list<string> бренды для блока на странице колеровки: из справочника, с флагом и с показанным колеруемым товаром */
     public static function tintBrands(): array
     {
-        return array_values(array_map(static fn(array $r): string => (string)$r['brand'], Database::rows('SELECT DISTINCT brand FROM mod_catalog_products WHERE visible = 1 AND tint = 1 AND brand != \'\' ORDER BY brand')));
+        return Dict::tintBrands();
     }
 
-    /** @return list<string> все бренды (для фильтра витрины: только видимые; $all включает скрытые) */
-    public static function brands(bool $all = false): array
+    /** @return list<string> бренды из справочника по порядку; без $all только те, что включены в фильтр каталога и имеют показанные товары */
+    public static function brands(bool $all = false, bool $tintOnly = false): array
     {
-        $sql = 'SELECT DISTINCT brand FROM mod_catalog_products WHERE brand != \'\'' . ($all ? '' : ' AND visible = 1') . ' ORDER BY brand';
-        return array_values(array_map(static fn(array $r): string => (string)$r['brand'], Database::rows($sql)));
+        return $all ? Dict::brandNames() : Dict::filterBrands($tintOnly);
+    }
+
+    /** Строка для поиска по товару: нижний регистр, бренд, название, линейка, применение. */
+    public static function searchText(string $brand, string $name, string $line, string $use): string
+    {
+        return mb_strtolower($brand . ' ' . $name . ' ' . $line . ' ' . $use);
     }
 
     public static function count(): int
@@ -151,7 +162,7 @@ final class Catalog
             : '<span class="card-tile tile-' . self::tile((string)$p['color']) . '" aria-hidden="true"><span class="card-brand">' . ag_e($p['brand']) . '</span></span>';
         return '<a class="card" href="/katalog/' . ag_e($p['slug']) . '">' . $tile
             . '<span class="card-body"><span class="card-title">' . ag_e($p['name']) . '</span>'
-            . '<span class="card-meta">' . ag_e(trim((self::TYPES[$p['type']] ?? '') . ($p['finish'] !== '' ? ', ' . mb_strtolower((string)$p['finish']) : ''), ', ')) . '</span>'
+            . '<span class="card-meta">' . ag_e(trim(Dict::typeName((string)$p['type']) . ($p['finish'] !== '' ? ', ' . mb_strtolower((string)$p['finish']) : ''), ', ')) . '</span>'
             . $price . $badge . '</span></a>';
     }
 
@@ -169,7 +180,8 @@ final class Catalog
 
     /**
      * Создаёт или обновляет товар по адресу и заменяет его варианты. Возвращает id.
-     * Поля $product: slug (необязателен), brand, name (обязательно), line, type, finish, base, use, description, tint, featured,
+     * Бренд и линейка, которых нет в справочнике, добавляются в него сами.
+     * Поля $product: slug (необязателен), brand, name (обязательно), line, type (ключ или название типа), finish, base, use, description, tint, featured,
      * visible, in_stock, color, images (список), specs (словарь), source_url, sort.
      *
      * @param array<string,mixed> $product
@@ -182,7 +194,7 @@ final class Catalog
             throw new \InvalidArgumentException('Название товара обязательно');
         }
         $brand = trim((string)($product['brand'] ?? ''));
-        $type = isset(self::TYPES[(string)($product['type'] ?? '')]) ? (string)$product['type'] : 'interior';
+        $type = Dict::resolveType((string)($product['type'] ?? '')) ?: 'interior';
         $images = array_values(array_filter(array_map('strval', (array)($product['images'] ?? [])), static fn(string $u): bool => preg_match('~^(/|https://)[^\s"<>]+$~', $u) === 1));
         $specs = [];
         foreach ((array)($product['specs'] ?? []) as $k => $v) {
@@ -216,6 +228,7 @@ final class Catalog
                 $found = $s->fetchColumn();
                 return $found !== false && (int)$found !== (int)($existing['id'] ?? 0);
             };
+            [$brand, $line] = Dict::ensure($pdo, $brand, $line);
             $slug = $slugIn !== '' ? Slug::unique($slugIn, $taken) : ($existing !== null ? (string)$existing['slug'] : Slug::unique(Slug::make($brand . ' ' . $name), $taken));
             $values = [
                 $slug, $brand, $name, $line, $type, trim((string)($product['finish'] ?? '')), trim((string)($product['base'] ?? '')), $use,
@@ -223,7 +236,7 @@ final class Catalog
                 array_key_exists('visible', $product) && empty($product['visible']) ? 0 : 1,
                 max(0, min(2, (int)($product['in_stock'] ?? 1))), self::tile((string)($product['color'] ?? '')),
                 json_encode($images, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), json_encode((object)$specs, JSON_UNESCAPED_UNICODE),
-                trim((string)($product['source_url'] ?? '')), mb_strtolower($brand . ' ' . $name . ' ' . $line . ' ' . $use), (int)($product['sort'] ?? 0), $now,
+                trim((string)($product['source_url'] ?? '')), self::searchText($brand, $name, $line, $use), (int)($product['sort'] ?? 0), $now,
             ];
             $new = $existing === null;
             if ($new) {
@@ -351,6 +364,7 @@ final class Catalog
     /** Единственное место, где после записи сбрасывается кэш страниц (блоки темы читают каталог). */
     public static function flush(array $newSlugs): void
     {
+        Dict::reset();
         try {
             Cache::invalidate(['all']);
         } catch (Throwable) {

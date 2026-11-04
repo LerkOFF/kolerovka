@@ -14,6 +14,7 @@ final class PublicPages
         $f = [
             'q' => mb_substr(trim((string)($q['q'] ?? '')), 0, 80),
             'brand' => mb_substr((string)($q['brand'] ?? ''), 0, 60),
+            'line' => mb_substr((string)($q['line'] ?? ''), 0, 60),
             'type' => (string)($q['type'] ?? ''),
             'tint' => in_array((string)($q['tint'] ?? ''), ['0', '1'], true) ? (string)$q['tint'] : '',
             'visible' => '1',
@@ -26,16 +27,41 @@ final class PublicPages
         $page = max(1, min((int)($q['str'] ?? 1), 500));
         $data = Catalog::list($f, $page, Catalog::PER_PAGE);
         $pages = max(1, (int)ceil($data['total'] / Catalog::PER_PAGE));
-        $filtered = $f['q'] !== '' || $f['brand'] !== '' || $f['type'] !== '' || ($other && $f['tint'] !== '');
+        $filtered = $f['q'] !== '' || $f['brand'] !== '' || $f['line'] !== '' || $f['type'] !== '' || ($other && $f['tint'] !== '');
 
         $opt = static fn(string $value, string $label, string $current): string => '<option value="' . ag_e($value) . '"' . ($value === $current ? ' selected' : '') . '>' . ag_e($label) . '</option>';
+        // Списки фильтра берутся из справочников (порядок и флаги «показывать»). Значение из адреса, которого в списке нет, остаётся выбранным.
+        $brandNames = Catalog::brands(false, !$other);
+        if ($f['brand'] !== '' && !in_array($f['brand'], $brandNames, true)) {
+            $brandNames[] = $f['brand'];
+        }
         $brands = $opt('', 'Все бренды', $f['brand']);
-        foreach (Catalog::brands() as $b) {
+        foreach ($brandNames as $b) {
             $brands .= $opt($b, $b, $f['brand']);
         }
+        $typeNames = Dict::filterTypes(!$other);
+        if ($f['type'] !== '' && !isset($typeNames[$f['type']]) && Dict::typeName($f['type']) !== '') {
+            $typeNames[$f['type']] = Dict::typeName($f['type']);
+        }
         $types = $opt('', 'Любой', $f['type']);
-        foreach (Catalog::TYPES as $k => $label) {
-            $types .= $opt($k, $label, $f['type']);
+        foreach ($typeNames as $k => $label) {
+            $types .= $opt((string)$k, $label, $f['type']);
+        }
+        $lineSel = '';
+        $groups = [];
+        foreach (Dict::filterLines($f['brand'], !$other) as $l) {
+            $groups[$l['brand']][] = $l['name'];
+        }
+        if ($groups !== []) {
+            $lines = $opt('', 'Любая', $f['line']);
+            foreach ($groups as $gb => $names) {
+                $lines .= ($f['brand'] === '' ? '<optgroup label="' . ag_e((string)$gb) . '">' : '');
+                foreach ($names as $n) {
+                    $lines .= $opt($n, $n, $f['line']);
+                }
+                $lines .= ($f['brand'] === '' ? '</optgroup>' : '');
+            }
+            $lineSel = '<div class="field"><label for="line">Линейка</label><select id="line" name="line">' . $lines . '</select></div>';
         }
         $tintSel = '';
         if ($badge) {
@@ -46,6 +72,7 @@ final class PublicPages
             . '<div class="field"><label for="q">Поиск</label><input id="q" name="q" type="search" maxlength="80" value="' . ag_e($f['q']) . '" placeholder="Название или бренд"></div>'
             . '<div class="field"><label for="brand">Бренд</label><select id="brand" name="brand">' . $brands . '</select></div>'
             . '<div class="field"><label for="type">Тип</label><select id="type" name="type">' . $types . '</select></div>'
+            . $lineSel
             . $tintSel
             . '<div class="filter-actions"><button class="btn btn-primary btn-sm" type="submit">Показать</button>'
             . ($filtered ? '<a class="btn btn-ghost btn-sm" href="/katalog">Сбросить</a>' : '') . '</div></form>';
@@ -73,7 +100,7 @@ final class PublicPages
             }
             $results .= $open ? '</div>' : '';
             if ($pages > 1) {
-                $qs = array_filter(['q' => $f['q'], 'brand' => $f['brand'], 'type' => $f['type'], 'tint' => $f['tint']], static fn($v): bool => $v !== '');
+                $qs = array_filter(['q' => $f['q'], 'brand' => $f['brand'], 'line' => $f['line'], 'type' => $f['type'], 'tint' => $f['tint']], static fn($v): bool => $v !== '');
                 $href = static fn(int $n): string => '/katalog?' . http_build_query($qs + ['str' => $n]);
                 $results .= '<nav class="pager" aria-label="Страницы">'
                     . ($page > 1 ? '<a class="btn btn-ghost btn-sm" href="' . ag_e($href($page - 1)) . '" rel="prev">Назад</a>' : '')
@@ -110,7 +137,7 @@ final class PublicPages
                 . '<div class="gallery-thumbs" aria-hidden="true"><span class="' . $tile . '"></span><span class="' . $tile . '"></span><span class="' . $tile . '"></span></div></div>';
         }
 
-        $rows = ['Бренд' => $p['brand'], 'Линейка' => $p['line'], 'Тип' => Catalog::TYPES[$p['type']] ?? '', 'Степень блеска' => $p['finish'], 'Основа' => $p['base'], 'Применение' => $p['use']] + $p['specs'];
+        $rows = ['Бренд' => $p['brand'], 'Линейка' => $p['line'], 'Тип' => Dict::typeName((string)$p['type']), 'Степень блеска' => $p['finish'], 'Основа' => $p['base'], 'Применение' => $p['use']] + $p['specs'];
         $dl = '';
         foreach ($rows as $k => $v) {
             if (trim((string)$v) !== '') {

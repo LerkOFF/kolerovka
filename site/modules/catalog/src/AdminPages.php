@@ -22,6 +22,9 @@ final class AdminPages
         if ($path === '/') {
             return $post ? self::bulk($request) : self::index($request->query);
         }
+        if ($path === '/dict') {
+            return DictPages::handle($request);
+        }
         if ($path === '/import' && !$post) {
             return self::importForm();
         }
@@ -59,7 +62,7 @@ final class AdminPages
             $brands .= $opt($b, $b, $f['brand']);
         }
         $types = $opt('', 'Любой', $f['type']);
-        foreach (Catalog::TYPES as $k => $l) {
+        foreach (Dict::typeNames() as $k => $l) {
             $types .= $opt($k, $l, $f['type']);
         }
         $filters = '<form class="row" method="get" action="' . self::BASE . '/">'
@@ -113,6 +116,7 @@ final class AdminPages
             $notice = '<div class="notice ok"><div>' . ag_e((string)$q['done']) . '</div></div>';
         }
         $head = '<div class="panel-h"><h2>Товары: ' . $data['total'] . '</h2>'
+            . '<a class="btn" href="' . self::BASE . '/dict">Справочники</a> '
             . '<a class="btn" href="' . self::BASE . '/import">Импорт и экспорт</a> '
             . '<a class="btn primary" href="' . self::BASE . '/product/new">Добавить товар</a></div>';
         $body = $notice . '<div class="panel">' . $head . '<div class="panel-b">' . $filters . '</div>' . $table . $nav . '</div>';
@@ -168,11 +172,13 @@ final class AdminPages
             return $h . '</select>';
         };
         $chk = static fn(string $name, string $label, $on): string => '<label class="chk"><input type="checkbox" name="' . $name . '" value="1"' . ($on ? ' checked' : '') . '> ' . ag_e($label) . '</label>';
-        $datalist = '<datalist id="brands">';
-        foreach (Catalog::brands(true) as $b) {
-            $datalist .= '<option value="' . ag_e($b) . '">';
+        $brandSel = self::brandSelect((string)$p['brand']);
+        $lineKnown = true;
+        $lineSel = self::lineSelect((string)$p['brand'], (string)$p['line'], $lineKnown);
+        $types = Dict::typeNames();
+        if (!isset($types[(string)$p['type']])) {
+            $types[(string)$p['type']] = (string)$p['type'];
         }
-        $datalist .= '</datalist>';
 
         $notice = '';
         if ($error !== '') {
@@ -185,10 +191,13 @@ final class AdminPages
 
         $main = '<form method="post" action="' . self::BASE . '/product/' . ($isNew ? 'new' : (int)$p['id']) . '">' . ag_admin_csrf_field()
             . '<div class="panel"><div class="panel-h"><h2>' . ($isNew ? 'Новый товар' : ag_e($p['brand'] . ' ' . $p['name'])) . '</h2></div><div class="panel-b">'
-            . '<div class="row">' . '<label class="f"><span>Бренд</span><input class="in" type="text" name="brand" list="brands" value="' . ag_e($p['brand']) . '" maxlength="80" required></label>'
-            . $text('name', 'Название', $p['name'], ' required') . $text('line', 'Линейка', $p['line']) . '</div>' . $datalist
-            . '<div class="row">' . '<label class="f"><span>Тип</span>' . $sel('type', Catalog::TYPES, $p['type']) . '</label>'
-            . $text('finish', 'Степень блеска', $p['finish']) . $text('base', 'Основа', $p['base']) . $text('use', 'Применение', $p['use']) . '</div>'
+            . '<div class="row">' . '<label class="f"><span>Бренд</span>' . $brandSel . '</label>'
+            . $text('brand_new', 'Другой бренд (если нет в списке)', '', ' placeholder="создастся в справочнике"') . $text('name', 'Название', $p['name'], ' required') . '</div>'
+            . '<div class="row">' . '<label class="f"><span>Линейка</span>' . $lineSel . '</label>'
+            . $text('line_new', 'Другая линейка (если нет в списке)', $lineKnown ? '' : $p['line'], ' placeholder="создастся у выбранного бренда"')
+            . '<label class="f"><span>Тип</span>' . $sel('type', $types, $p['type']) . '</label></div>'
+            . '<small class="hint">Бренды, линейки и типы настраиваются в разделе <a href="' . self::BASE . '/dict">Справочники</a>. Линейки в списке сгруппированы по брендам: выбирайте линейку того же бренда, что выбран слева.</small>'
+            . '<div class="row">' . $text('finish', 'Степень блеска', $p['finish']) . $text('base', 'Основа', $p['base']) . $text('use', 'Применение', $p['use']) . '</div>'
             . '<label class="f"><span>Описание</span><textarea class="in" name="description" rows="5" maxlength="4000">' . ag_e($p['description']) . '</textarea><small class="hint">Берите текст с официального сайта бренда, без копирования чужих фото.</small></label>'
             . '<div class="row">'
             . '<label class="f"><span>Наличие</span>' . $sel('in_stock', Catalog::STOCK, $p['in_stock']) . '</label>'
@@ -247,21 +256,35 @@ final class AdminPages
             }
         }
         $images = array_values(array_filter(array_map('trim', preg_split('/\R/u', (string)($b['images'] ?? '')) ?: [])));
+        $brand = Dict::clean((string)($b['brand_new'] ?? '')) ?: Dict::clean((string)($b['brand'] ?? ''));
+        $lineNew = Dict::clean((string)($b['line_new'] ?? ''));
+        $line = $lineNew;
+        $lineError = '';
+        if ($lineNew === '' && (int)($b['line'] ?? 0) > 0) {
+            $row = Dict::line((int)$b['line']);
+            if ($row !== null) {
+                $line = (string)$row['name'];
+                if ($brand !== '' && mb_strtolower((string)$row['brand']) !== mb_strtolower($brand)) {
+                    $lineError = 'Линейка «' . $row['name'] . '» относится к бренду ' . $row['brand'] . '. Выберите линейку бренда ' . $brand . ' или впишите новую.';
+                    $line = '';
+                }
+            }
+        }
         $product = [
             'id' => $id === 'new' ? 0 : (int)$id,
-            'slug' => (string)($b['slug'] ?? ''), 'brand' => (string)($b['brand'] ?? ''), 'name' => (string)($b['name'] ?? ''),
-            'line' => (string)($b['line'] ?? ''), 'type' => (string)($b['type'] ?? 'interior'), 'finish' => (string)($b['finish'] ?? ''),
+            'slug' => (string)($b['slug'] ?? ''), 'brand' => $brand, 'name' => (string)($b['name'] ?? ''),
+            'line' => $line, 'type' => (string)($b['type'] ?? 'interior'), 'finish' => (string)($b['finish'] ?? ''),
             'base' => (string)($b['base'] ?? ''), 'use' => (string)($b['use'] ?? ''), 'description' => (string)($b['description'] ?? ''),
             'tint' => !empty($b['tint']), 'featured' => !empty($b['featured']), 'visible' => !empty($b['visible']),
             'in_stock' => (int)($b['in_stock'] ?? 1), 'color' => (string)($b['color'] ?? ''), 'images' => $images, 'specs' => $specs,
             'source_url' => (string)($b['source_url'] ?? ''), 'sort' => (int)($b['sort'] ?? 0),
         ];
-        if (trim($product['name']) === '' || trim($product['brand']) === '') {
+        if (trim($product['name']) === '' || trim($product['brand']) === '' || $lineError !== '') {
             $draft = $product + ['variants' => $variants];
             $draft['tint'] = (int)$draft['tint'];
             $draft['featured'] = (int)$draft['featured'];
             $draft['visible'] = (int)$draft['visible'];
-            return self::form($id, [], 'Укажите бренд и название.', $draft);
+            return self::form($id, [], $lineError !== '' ? $lineError : 'Укажите бренд и название.', $draft);
         }
         try {
             $pid = Catalog::upsert($product, $variants);
@@ -269,6 +292,46 @@ final class AdminPages
             return self::form($id, [], 'Не удалось сохранить: ' . $e->getMessage(), $product + ['variants' => $variants, 'tint' => (int)$product['tint'], 'featured' => (int)$product['featured'], 'visible' => (int)$product['visible']]);
         }
         return ModuleResponse::redirect(self::BASE . '/product/' . $pid . '?saved=1');
+    }
+
+    /** Выпадающий список брендов справочника; значение пустое, пока бренд не выбран. */
+    private static function brandSelect(string $current): string
+    {
+        $names = Dict::brandNames();
+        $h = '<select class="in" name="brand"><option value="">- выберите бренд -</option>';
+        $found = false;
+        foreach ($names as $n) {
+            $on = $current !== '' && mb_strtolower($n) === mb_strtolower($current);
+            $found = $found || $on;
+            $h .= '<option value="' . ag_e($n) . '"' . ($on ? ' selected' : '') . '>' . ag_e($n) . '</option>';
+        }
+        if ($current !== '' && !$found) {
+            $h .= '<option value="' . ag_e($current) . '" selected>' . ag_e($current) . ' (новый)</option>';
+        }
+        return $h . '</select>';
+    }
+
+    /** Список линеек, сгруппированных по брендам; линейки текущего бренда идут первыми. */
+    private static function lineSelect(string $brand, string $current, bool &$known): string
+    {
+        $groups = [];
+        foreach (Dict::allLines() as $l) {
+            $groups[$l['brand']][] = $l;
+        }
+        uksort($groups, static fn(string $a, string $b): int => (mb_strtolower($b) === mb_strtolower($brand)) <=> (mb_strtolower($a) === mb_strtolower($brand)));
+        $h = '<select class="in" name="line"><option value="">Без линейки</option>';
+        $found = $current === '';
+        foreach ($groups as $gb => $lines) {
+            $h .= '<optgroup label="' . ag_e((string)$gb) . '">';
+            foreach ($lines as $l) {
+                $on = !$found && mb_strtolower($gb) === mb_strtolower($brand) && mb_strtolower($l['name']) === mb_strtolower($current);
+                $found = $found || $on;
+                $h .= '<option value="' . $l['id'] . '"' . ($on ? ' selected' : '') . '>' . ag_e($l['name']) . '</option>';
+            }
+            $h .= '</optgroup>';
+        }
+        $known = $found;
+        return $h . '</select>';
     }
 
     private static function image(ModuleRequest $request, string $id): ModuleResponse
@@ -315,7 +378,8 @@ final class AdminPages
             . '<p>Первая строка: названия колонок. Порядок любой, лишние колонки пропускаются.</p>'
             . '<p><code>' . ag_e(implode(';', Csv::COLUMNS)) . '</code></p>'
             . '<ul><li>Одна строка на фасовку: у товара с тремя объёмами три строки с одним slug.</li>'
-            . '<li><b>type</b>: interior, facade или universal. <b>tint</b>, <b>featured</b>, <b>visible</b>: 1 или 0 (также «да» и «нет»).</li>'
+            . '<li><b>brand</b> и <b>line</b>: если такого бренда или линейки нет в <a href="' . self::BASE . '/dict">справочниках</a>, они добавятся сами.</li>'
+            . '<li><b>type</b>: ключ типа из справочника (сейчас: ' . ag_e(implode(', ', array_keys(Dict::typeNames()))) . ') или его название. <b>tint</b>, <b>featured</b>, <b>visible</b>: 1 или 0 (также «да» и «нет»).</li>'
             . '<li><b>in_stock</b>: 1 в наличии, 2 под заказ, 0 нет. <b>color</b>: цвет плитки-заглушки, один из ключей: ' . ag_e(implode(', ', array_keys(Catalog::PALETTE))) . '.</li>'
             . '<li><b>price</b>: рубли без копеек. Проще всего сначала скачать выгрузку и править её в таблице.</li></ul></div></div>';
         return ModuleResponse::html('Импорт и экспорт', $body);

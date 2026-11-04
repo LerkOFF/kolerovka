@@ -12,14 +12,16 @@ use AgeCMS\NotFoundException;
 use AgeCMS\SitemapModuleInterface;
 
 require_once __DIR__ . '/src/Slug.php';
+require_once __DIR__ . '/src/Dict.php';
 require_once __DIR__ . '/src/Catalog.php';
 require_once __DIR__ . '/src/Csv.php';
 require_once __DIR__ . '/src/PublicPages.php';
+require_once __DIR__ . '/src/DictPages.php';
 require_once __DIR__ . '/src/AdminPages.php';
 
 /**
  * Каталог красок сайта колеровки: страницы /katalog и /katalog/{slug}, раздел «Каталог» в админке
- * (поиск, фильтры, массовые правки цен, карточка, фото, импорт и выгрузка CSV) и API Catalog для блоков темы.
+ * (поиск, фильтры, массовые правки цен, карточка, фото, справочники брендов, линейок и типов, импорт и выгрузка CSV) и API Catalog для блоков темы.
  */
 final class Module implements SitemapModuleInterface, AdminModuleInterface
 {

@@ -1,6 +1,6 @@
 {
     "name": "catalog",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "title": "Каталог красок: товары, цены, колеровка",
     "entry": "Module.php",
     "class": "AgeCMS\\Modules\\catalog\\Module",
@@ -10,6 +10,7 @@
     ],
     "admin": [
         {"path": "/", "title": "Каталог", "permission": "content.write", "methods": ["GET", "POST"], "menu": true},
+        {"path": "/dict", "title": "Справочники", "permission": "content.write", "methods": ["GET", "POST"], "menu": true},
         {"path": "/product/{id}", "title": "Товар", "permission": "content.write", "methods": ["GET", "POST"]},
         {"path": "/product/{id}/image", "title": "Фото товара", "permission": "content.write", "methods": ["POST"],
          "upload": {"kinds": ["image"], "max_kb": 8192, "max_files": 4}},
