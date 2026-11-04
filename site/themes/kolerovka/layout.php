@@ -27,7 +27,7 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
     <?= $head ?>
 
     <link rel="icon" href="<?= ag_e(kl_asset('favicon.svg')) ?>" type="image/svg+xml">
-    <link rel="preload" href="<?= ag_e(kl_asset('fonts/onest-cyrillic.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/themes/kolerovka/assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
     <script src="<?= ag_e(kl_asset('theme-init.js')) ?>"></script>
     <link rel="stylesheet" href="<?= ag_e(kl_asset('theme.css')) ?>">
 <?php if ($editing): ?>
