@@ -86,7 +86,7 @@
         if (!tools || !search) { return; }
         tools.hidden = false;
         var family = 'all';
-        var norm = function (v) { return v.toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim(); };
+        var norm = function (v) { return v.toLowerCase().replace(/ё/g, 'е').replace(/[-–—]/g, ' ').replace(/\s+/g, ' ').trim(); };
         var apply = function () {
             var q = norm(search.value);
             var words = q === '' ? [] : q.split(' ');
