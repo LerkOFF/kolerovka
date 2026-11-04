@@ -26,7 +26,9 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
     <meta name="color-scheme" content="light dark">
     <?= $head ?>
 
-    <link rel="icon" href="<?= ag_e(kl_asset('favicon.svg')) ?>" type="image/svg+xml">
+    <link rel="icon" href="<?= ag_e(kl_asset('favicon-32.png')) ?>" type="image/png" sizes="32x32">
+    <link rel="icon" href="<?= ag_e(kl_asset('favicon-192.png')) ?>" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="<?= ag_e(kl_asset('apple-touch-icon.png')) ?>">
     <link rel="preload" href="/themes/kolerovka/assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
     <script src="<?= ag_e(kl_asset('theme-init.js')) ?>"></script>
     <link rel="stylesheet" href="<?= ag_e(kl_asset('theme.css')) ?>">
@@ -44,7 +46,7 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
     <header class="site-header" data-ag-region="header">
         <div class="wrap bar">
             <a class="brand" href="/" aria-label="<?= ag_e($site['name']) ?>, на главную">
-                <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                <span class="brand-mark" aria-hidden="true"><img src="<?= ag_e(kl_asset('logo-mark.png')) ?>" alt="" width="40" height="40"></span>
                 <span class="brand-name"><?= ag_e($site['name']) ?></span>
             </a>
             <nav class="nav" id="nav" aria-label="Основное меню" data-ag-region="menu">
@@ -74,7 +76,7 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
     <footer class="site-footer" data-ag-region="footer">
         <div class="wrap foot">
             <div>
-                <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="brand-name"><?= ag_e($site['name']) ?></span></a>
+                <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><img src="<?= ag_e(kl_asset('logo-mark.png')) ?>" alt="" width="40" height="40"></span><span class="brand-name"><?= ag_e($site['name']) ?></span></a>
                 <p class="muted">Премиальные краски и колеровка.<?php if ($site['address'] !== ''): ?><br><?= ag_e($site['address']) ?><?php endif; ?></p>
 <?php if ($site['requisites'] !== ''): ?>
                 <p class="fine"><?= nl2br(ag_e($site['requisites']), false) ?></p>
