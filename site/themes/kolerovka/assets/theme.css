@@ -22,8 +22,9 @@
   --gap: clamp(1rem, 2.4vw, 1.5rem);
   --font: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
+/* Тема: по умолчанию как в системе, кнопка в шапке закрепляет светлую или тёмную (data-theme на html). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #101216;
     --surface: #181b21;
     --surface-2: #20242b;
@@ -39,6 +40,23 @@
     --shadow: 0 10px 30px -14px rgb(0 0 0 / .7);
   }
 }
+:root[data-theme="dark"] {
+    --bg: #101216;
+  --surface: #181b21;
+  --surface-2: #20242b;
+  --ink: #eceef2;
+  --ink-2: #aab1bf;
+  --line: #2a2f38;
+  --accent: #7ea1ff;
+  --accent-ink: #0c1530;
+  --accent-soft: #1c2640;
+  --ok: #55c58b;
+  --ink-block: #20242b;
+  --ink-block-text: #eceef2;
+  --shadow: 0 10px 30px -14px rgb(0 0 0 / .7);
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
@@ -70,6 +88,13 @@ h3 { font-size: 1.15rem; letter-spacing: -.01em; }
 .btn-sm { min-height: 40px; padding: .55rem 1rem; font-size: .9375rem; }
 .icon-btn { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r); border: 1.5px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
 .icon-btn:hover { border-color: var(--ink-2); }
+.theme-btn .ic-moon { display: none; }
+:root[data-theme="dark"] .theme-btn .ic-sun { display: none; }
+:root[data-theme="dark"] .theme-btn .ic-moon { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-btn .ic-sun { display: none; }
+  :root:not([data-theme="light"]) .theme-btn .ic-moon { display: block; }
+}
 .cta-row { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
 
 /* Шапка */
@@ -203,7 +228,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .form-status { margin: 0; font-weight: 600; color: var(--ok); }
 .form-status.error { color: #c1121c; }
-@media (prefers-color-scheme: dark) { .form-status.error { color: #ff8a8a; } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .form-status.error { color: #ff8a8a; } }
+:root[data-theme="dark"] .form-status.error { color: #ff8a8a; }
 
 /* Контакты */
 .contact-list { margin: 1.25rem 0; display: grid; gap: 1rem; }

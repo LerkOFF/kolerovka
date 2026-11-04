@@ -15,7 +15,7 @@ if (PHP_SAPI !== 'cli') {
 }
 $root = realpath($argv[1] ?? '');
 if ($root === false || !is_file($root . '/core/bootstrap.php')) {
-    fwrite(STDERR, "Usage: php scripts/seed.php <assembled site root> [--products]\n");
+    fwrite(STDERR, "Usage: php scripts/seed.php <assembled site root> [--products] [--reset-products]\n");
     exit(1);
 }
 define('AGECMS_ROOT', $root);
@@ -62,6 +62,13 @@ foreach ($json($content . '/menus.json') as $name => $items) {
 SkillRegistry::boot();
 $catalog = '\\AgeCMS\\Modules\\catalog\\Catalog';
 if (class_exists($catalog)) {
+    if (in_array('--reset-products', $argv, true)) {
+        Database::write(static function (PDO $pdo): void {
+            $pdo->exec('DELETE FROM mod_catalog_variants');
+            $pdo->exec('DELETE FROM mod_catalog_products');
+        });
+        echo str_pad('товары', 28) . "очищены\n";
+    }
     $has = (int)Database::value('SELECT COUNT(*) FROM mod_catalog_products');
     if ($has === 0 || in_array('--products', $argv, true)) {
         $report = $catalog::importRows($json($content . '/products.json'));
@@ -71,6 +78,14 @@ if (class_exists($catalog)) {
     }
 } else {
     echo "Модуль catalog не загружен, товары пропущены\n";
+}
+
+// Настройки модуля по решению заказчика: цены не показываем, раздела «Прочие краски» нет. Только если владелец ещё не менял.
+$cfg = \AgeCMS\Config::all();
+if (!isset($cfg['module_settings']['catalog'])) {
+    $cfg['module_settings']['catalog'] = ['show_prices' => false, 'show_tint_badge' => true, 'other_paints' => false];
+    \AgeCMS\Config::save($cfg);
+    echo str_pad('настройки каталога', 28) . "заданы\n";
 }
 
 Cache::invalidate(['all']);

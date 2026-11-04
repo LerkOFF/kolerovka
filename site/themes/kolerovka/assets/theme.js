@@ -2,6 +2,18 @@
     'use strict';
     document.documentElement.classList.add('js');
 
+    // Переключатель темы: светлая или тёмная, выбор хранится в браузере.
+    var themeBtn = document.querySelector('.theme-btn');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', function () {
+            var root = document.documentElement;
+            var cur = root.getAttribute('data-theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            var next = cur === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('kl-theme', next); } catch (e) {}
+        });
+    }
+
     // Меню на телефоне.
     var btn = document.querySelector('.menu-btn');
     var nav = document.getElementById('nav');

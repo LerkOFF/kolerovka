@@ -6,9 +6,7 @@ $uid = 'f' . substr(md5($id ?? uniqid('', true)), 0, 6);
                         <div class="field"><label for="<?= $uid ?>-n">Имя</label><input id="<?= $uid ?>-n" name="name" type="text" maxlength="100" autocomplete="given-name" required></div>
                         <div class="field"><label for="<?= $uid ?>-p">Телефон</label><input id="<?= $uid ?>-p" name="phone" type="tel" maxlength="30" autocomplete="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" required></div>
 <?php if ($mode === 'contact'): ?>
-                        <div class="field"><label for="<?= $uid ?>-e">Почта <span class="muted">(необязательно)</span></label><input id="<?= $uid ?>-e" type="email" maxlength="120" autocomplete="email" data-contact-email></div>
-                        <div class="field"><label for="<?= $uid ?>-m">Сообщение</label><textarea id="<?= $uid ?>-m" rows="4" maxlength="1800" data-contact-text></textarea></div>
-                        <input type="hidden" name="message" value="" data-contact-message>
+                        <div class="field"><label for="<?= $uid ?>-m">Сообщение</label><textarea id="<?= $uid ?>-m" name="message" rows="4" maxlength="1800"></textarea></div>
 <?php else: ?>
                         <div class="field"><label for="<?= $uid ?>-m">Что нужно заколеровать</label><textarea id="<?= $uid ?>-m" name="message" rows="4" maxlength="1800" data-tint-comment></textarea></div>
 <?php endif; ?>

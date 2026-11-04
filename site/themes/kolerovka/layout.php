@@ -28,6 +28,7 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
 
     <link rel="icon" href="<?= ag_e(kl_asset('favicon.svg')) ?>" type="image/svg+xml">
     <link rel="preload" href="<?= ag_e(kl_asset('fonts/onest-cyrillic.woff2')) ?>" as="font" type="font/woff2" crossorigin>
+    <script src="<?= ag_e(kl_asset('theme-init.js')) ?>"></script>
     <link rel="stylesheet" href="<?= ag_e(kl_asset('theme.css')) ?>">
 <?php if ($editing): ?>
     <meta name="ag-csrf" content="<?= ag_e($csrf) ?>">
@@ -57,6 +58,7 @@ $path = '/' . ($slug === 'index' ? '' : $slug);
                 <a class="icon-btn" href="<?= ag_e($site['telegram']) ?>" aria-label="Написать в Telegram" rel="noopener"><?= kl_icon('telegram-logo') ?></a>
 <?php endif; ?>
                 <a class="btn btn-primary btn-sm hide-sm" href="/kolerovka#zayavka">Заказать колеровку</a>
+                <button class="icon-btn theme-btn" type="button" aria-label="Сменить тему: светлая или тёмная" title="Тема"><?= kl_icon('sun', 'ic ic-sun') ?><?= kl_icon('moon', 'ic ic-moon') ?></button>
                 <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Меню"><?= kl_icon('list') ?></button>
             </div>
         </div>
