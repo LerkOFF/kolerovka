@@ -17,14 +17,13 @@
       "url": "/dostavka-i-oplata"
     },
     {
+      "title": "FAQ",
+      "url": "/voprosy-i-otvety"
+    },
+    {
       "title": "Контакты",
       "url": "/kontakty"
     }
   ],
-  "footer": [
-    {
-      "title": "Вопросы и ответы",
-      "url": "/voprosy-i-otvety"
-    }
-  ]
+  "footer": []
 }
